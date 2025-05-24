@@ -1,6 +1,8 @@
 # 🏥 Dr. Sarvam - Multilingual AI Doctor Agent
 
 A comprehensive AI-powered medical consultation system that can communicate with patients across India in their native languages using Sarvam AI APIs.
+![image](https://github.com/user-attachments/assets/6b1e8533-006e-4ff5-a67e-20e438f79f1e)
+
 
 ## 🌟 Features
 
