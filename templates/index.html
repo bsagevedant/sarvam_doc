@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dr. Sarvam - Multilingual AI Doctor Agent</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Header -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+            <div class="container">
+                <a class="navbar-brand" href="#">
+                    <i class="fas fa-user-md"></i>
+                    Dr. Sarvam - AI चिकित्सक
+                </a>
+                <div class="navbar-nav ms-auto">
+                    <span class="navbar-text">
+                        <i class="fas fa-language"></i>
+                        Multilingual Medical Assistant
+                    </span>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container">
+            <div class="row">
+                <!-- Main Chat Interface -->
+                <div class="col-lg-8">
+                    <div class="card shadow-lg">
+                        <div class="card-header bg-gradient-primary text-white">
+                            <h4 class="mb-0">
+                                <i class="fas fa-comments"></i>
+                                Medical Consultation
+                            </h4>
+                            <small>Speak or type in any Indian language</small>
+                        </div>
+                        
+                        <div class="card-body">
+                            <!-- Chat Messages -->
+                            <div id="chatMessages" class="chat-messages mb-4">
+                                <div class="message bot-message">
+                                    <div class="message-content">
+                                        <i class="fas fa-robot"></i>
+                                        <strong>Dr. Sarvam:</strong><br>
+                                        नमस्ते! मैं डॉ. सर्वम हूं, आपका AI चिकित्सा सहायक। आपकी स्वास्थ्य समस्याओं में मदद के लिए मैं यहां हूं।<br><br>
+                                        Hello! I'm Dr. Sarvam, your AI medical assistant. I'm here to help with your health concerns.<br><br>
+                                        🎤 <strong>New!</strong> Try the <strong>2-Way Conversation</strong> mode for natural voice interaction!<br>
+                                        आप अपनी मातृभाषा में बात कर सकते हैं।
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Input Methods -->
+                            <div class="input-methods">
+                                <!-- Text Input -->
+                                <div class="input-group mb-3">
+                                    <input type="text" id="textInput" class="form-control" 
+                                           placeholder="अपनी स्वास्थ्य समस्या यहां लिखें / Type your health concern here...">
+                                    <button class="btn btn-primary" type="button" id="sendText">
+                                        <i class="fas fa-paper-plane"></i>
+                                        Send
+                                    </button>
+                                </div>
+                                
+                                <!-- Audio Input -->
+                                <div class="audio-controls text-center mb-3">
+                                    <div class="mb-3">
+                                        <button id="conversationMode" class="btn btn-primary me-2">
+                                            <i class="fas fa-comments"></i>
+                                            Start 2-Way Conversation
+                                        </button>
+                                        <div id="conversationStatus" class="mt-2 text-muted">
+                                            Conversation Mode: Inactive
+                                        </div>
+                                        <div id="voiceIndicator" class="mt-2" style="display: none;">
+                                            <div class="voice-level-indicator">
+                                                <div class="voice-level-bar" id="voiceLevelBar"></div>
+                                            </div>
+                                            <small class="text-muted">Voice Level</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="manual-controls">
+                                        <button id="recordBtn" class="btn btn-danger me-2">
+                                            <i class="fas fa-microphone"></i>
+                                            Record Voice
+                                        </button>
+                                        <button id="stopBtn" class="btn btn-secondary me-2" disabled>
+                                            <i class="fas fa-stop"></i>
+                                            Stop
+                                        </button>
+                                        <button id="playBtn" class="btn btn-info me-2" disabled>
+                                            <i class="fas fa-play"></i>
+                                            Play
+                                        </button>
+                                        <button id="sendAudio" class="btn btn-success" disabled>
+                                            <i class="fas fa-upload"></i>
+                                            Send Audio
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Audio Visualization -->
+                                <div id="audioVisual" class="audio-visual text-center mb-3" style="display: none;">
+                                    <canvas id="audioCanvas" width="400" height="100"></canvas>
+                                </div>
+                                
+                                <!-- Language Selection -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Preferred Response Language:</label>
+                                        <select id="responseLanguage" class="form-select">
+                                            <option value="auto">Auto-detect</option>
+                                            {% for code, name in languages.items() %}
+                                            <option value="{{ code }}">{{ name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Detected Language:</label>
+                                        <input type="text" id="detectedLanguage" class="form-control" readonly 
+                                               placeholder="Will be detected automatically">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sidebar -->
+                <div class="col-lg-4">
+                    <!-- Language Support -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-globe"></i>
+                                Supported Languages
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                {% for code, name in languages.items() %}
+                                <div class="col-6 mb-2">
+                                    <span class="badge bg-secondary">{{ name }}</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Features -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-star"></i>
+                                Features
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success"></i>
+                                    <strong>2-Way Voice Conversation</strong>
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success"></i>
+                                    Automatic language detection
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success"></i>
+                                    Real-time voice activity detection
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success"></i>
+                                    Text-to-speech responses
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success"></i>
+                                    Emergency detection
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success"></i>
+                                    Cultural sensitivity
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success"></i>
+                                    Multilingual translation
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Disclaimer -->
+                    <div class="card shadow">
+                        <div class="card-header bg-warning text-dark">
+                            <h5 class="mb-0">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Important Notice
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <small>
+                                <strong>Disclaimer:</strong> This AI assistant provides general medical information only. 
+                                Always consult qualified healthcare professionals for proper diagnosis and treatment. 
+                                In case of emergency, contact your local emergency services immediately.
+                                <br><br>
+                                <strong>अस्वीकरण:</strong> यह AI सहायक केवल सामान्य चिकित्सा जानकारी प्रदान करता है। 
+                                उचित निदान और उपचार के लिए हमेशा योग्य स्वास्थ्य सेवा पेशेवरों से सलाह लें।
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loading Modal -->
+    <div class="modal fade" id="loadingModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center p-4">
+                    <div class="spinner-border text-primary mb-3" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <div id="loadingText">Processing your request...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/voice-test.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html> 
